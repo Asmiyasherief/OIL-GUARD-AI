@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-09-18T09:00:00Z",
+  "location": "Kerala Coastal Sector (9.65°N, 76.25°E)",
+  "speedKmh": 18.0,
+  "speedKnots": 9.72,
+  "directionFromDeg": 225,
+  "directionTowardDeg": 45,
+  "cardinal": "SW -> NE",
+  "gustKmh": 24.0,
+  "source": "Simulated Coastal Meteorological Service (Prototype)",
+  "driftInfluenceFactor": 0.03
+}

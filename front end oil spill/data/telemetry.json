@@ -1,0 +1,31 @@
+{
+  "notice": "Simulated telemetry data feed for authorized vessels only. Authorities do not access private engine computers without authorization.",
+  "vesselId": "OG-VESSEL-01",
+  "vesselName": "MV Ocean Star",
+  "normalBaseline": {
+    "fuelPressurePsi": { "value": 72.0, "unit": "PSI", "min": 65.0, "max": 78.0, "status": "NORMAL" },
+    "fuelFlowTph": { "value": 11.8, "unit": "t/h", "min": 10.0, "max": 14.0, "status": "NORMAL" },
+    "fuelLevelPct": { "value": 84.5, "unit": "%", "status": "NORMAL" },
+    "engineTempC": { "value": 41.2, "unit": "°C", "min": 38.0, "max": 45.0, "status": "NORMAL" },
+    "pumpPressureBar": { "value": 2.1, "unit": "bar", "min": 1.9, "max": 2.4, "status": "NORMAL" },
+    "leakRiskIndex": 0.08
+  },
+  "observedIncident": {
+    "fuelPressurePsi": { "value": 41.0, "unit": "PSI", "normal": 72.0, "status": "CRITICAL_LOW" },
+    "fuelFlowTph": { "value": 29.6, "unit": "t/h", "normal": 11.8, "status": "ABNORMAL_SPIKE" },
+    "fuelLevelPct": { "value": 68.2, "unit": "%", "dropRatePerHour": 0.86, "status": "RAPID_DEPLETION" },
+    "engineTempC": { "value": 47.8, "unit": "°C", "normal": 41.2, "status": "ELEVATED" },
+    "pumpPressureBar": { "value": 3.9, "unit": "bar", "normal": 2.1, "status": "UNSTABLE" },
+    "leakRiskIndex": 0.94,
+    "anomalyDetected": true,
+    "anomalySummary": "Sudden drop in fuel manifold pressure (-31 PSI) coupled with anomalous flow surge (+17.8 t/h) and rapid tank depletion (0.86%/h). Strongly indicates potential line breach or fuel discharge."
+  },
+  "history": [
+    { "timestamp": "08:00:00Z", "pressure": 72.1, "flow": 11.7, "temp": 41.0, "level": 84.5 },
+    { "timestamp": "08:15:00Z", "pressure": 71.8, "flow": 11.9, "temp": 41.3, "level": 84.2 },
+    { "timestamp": "08:30:00Z", "pressure": 69.4, "flow": 13.2, "temp": 42.0, "level": 83.5 },
+    { "timestamp": "08:45:00Z", "pressure": 58.0, "flow": 19.4, "temp": 43.8, "level": 80.1 },
+    { "timestamp": "09:00:00Z", "pressure": 45.2, "flow": 26.8, "temp": 46.1, "level": 74.3 },
+    { "timestamp": "09:15:00Z", "pressure": 41.0, "flow": 29.6, "temp": 47.8, "level": 68.2 }
+  ]
+}

@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OilGuard AI — Marine Oil Spill Intelligence & Decision-Support Platform</title>
+  <meta name="description" content="Multi-source intelligence platform for marine oil spill verification, spread assessment, and coastal impact protection." />
+
+  <!-- Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet.js Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Three.js for 3D Landing Visualization -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- OilGuard Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- =========================================================================
+       1. LANDING / HERO SCREEN
+       ========================================================================= -->
+  <section id="landing-screen">
+    <div id="hero-3d-canvas"></div>
+    <div class="landing-overlay">
+      <div class="landing-badge">
+        <span>●</span> Authority Decision-Support System · Kerala Coastal Watch
+      </div>
+      <h1 class="landing-title">OILGUARD AI</h1>
+      <h2 class="landing-subtitle">MARINE OIL SPILL INTELLIGENCE & RESPONSE PLATFORM</h2>
+      <p class="landing-desc">
+        Multi-source intelligence combining simulated AIS vessel tracking, authorized telemetry,
+        ocean drone vision, and Sentinel-1 SAR satellite observations for faster verification,
+        spread modeling, and coastal defense.
+      </p>
+
+      <div class="workflow-strip">
+        <div class="workflow-step"><span>01</span> DETECT</div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step"><span>02</span> VERIFY</div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step"><span>03</span> ASSESS</div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step"><span>04</span> PROTECT</div>
+      </div>
+
+      <div class="landing-actions">
+        <button id="btn-start-command" class="btn btn-primary">
+          <span>⚡</span> START COMMAND CENTER
+        </button>
+        <button id="btn-watch-demo" class="btn btn-secondary">
+          <span>▶</span> WATCH AUTOMATED DEMO (60s)
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       2. MAIN COMMAND CENTER DASHBOARD
+       ========================================================================= -->
+  <main id="command-center">
+
+    <!-- Top Navigation Header -->
+    <header class="topbar">
+      <div class="brand-section">
+        <div class="brand-logo-badge">OG</div>
+        <div class="brand-title">
+          <h1>OILGUARD AI <span class="badge badge-ok">OPERATIONAL</span></h1>
+          <p>Kerala Coastal Watch · Decision-Support Platform</p>
+        </div>
+      </div>
+
+      <!-- Top Statistical Counters -->
+      <div class="top-metrics-strip">
+        <div class="top-stat-box">
+          <span class="top-stat-label">SHIPS MONITORED</span>
+          <span id="stat-vessels-count" class="top-stat-val">23</span>
+        </div>
+        <div class="top-stat-box">
+          <span class="top-stat-label">ACTIVE ALERTS</span>
+          <span id="stat-active-alerts" class="top-stat-val danger">0</span>
+        </div>
+        <div class="top-stat-box">
+          <span class="top-stat-label">HIGH-RISK ZONES</span>
+          <span class="top-stat-val">4</span>
+        </div>
+        <div class="top-stat-box">
+          <span class="top-stat-label">EVIDENCE SOURCES</span>
+          <span class="top-stat-val text-cyan">5 CONNECTED</span>
+        </div>
+      </div>
+
+      <!-- Right System Control Status -->
+      <div class="top-right-controls">
+        <span id="utc-clock" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);"></span>
+        <div id="backend-status-pill" class="status-pill offline" title="Auto-detecting Flask REST API">
+          <span class="pulse-dot offline"></span> CLIENT SIMULATION
+        </div>
+        <button id="top-start-demo-btn" class="btn btn-sm btn-primary">
+          <span>⚡</span> START DEMO
+        </button>
+        <button id="btn-back-landing" class="btn btn-sm btn-outline" title="Back to Landing">
+          <span>⌂</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Automated 12-Step Hackathon Demo Ribbon -->
+    <section class="demo-ribbon">
+      <div class="demo-controls-left">
+        <button id="demo-play-btn" class="btn btn-sm btn-primary">
+          <span class="btn-icon">▶</span> Run Demo
+        </button>
+        <button id="demo-prev-btn" class="btn btn-sm btn-outline" title="Previous Step">◀</button>
+        <button id="demo-next-btn" class="btn btn-sm btn-outline" title="Next Step">▶</button>
+        <button id="demo-restart-btn" class="btn btn-sm btn-outline" title="Restart">↺</button>
+        <button id="demo-speed-btn" class="btn btn-sm btn-outline" title="Playback Speed">1.0x</button>
+      </div>
+
+      <div class="demo-step-info">
+        <div class="demo-step-header">
+          <span id="demo-step-counter" class="demo-step-counter">STEP 1 / 12</span>
+          <span id="demo-step-title" class="demo-step-title">STEP 1: Maritime Baseline Monitoring</span>
+        </div>
+        <div id="demo-step-desc" class="demo-step-desc">
+          Command Center online. Monitoring 23 authorized commercial vessels along Kerala shipping fairway.
+        </div>
+      </div>
+
+      <div class="demo-step-crumbs">
+        <div class="demo-step-crumb active" data-step="1" title="1. Baseline">1</div>
+        <div class="demo-step-crumb" data-step="2" title="2. Zone Entry">2</div>
+        <div class="demo-step-crumb" data-step="3" title="3. Investigation Trigger">3</div>
+        <div class="demo-step-crumb" data-step="4" title="4. Telemetry Anomaly">4</div>
+        <div class="demo-step-crumb" data-step="5" title="5. Ocean Vision AI">5</div>
+        <div class="demo-step-crumb" data-step="6" title="6. Satellite SAR">6</div>
+        <div class="demo-step-crumb" data-step="7" title="7. AI Fusion Engine">7</div>
+        <div class="demo-step-crumb" data-step="8" title="8. Risk Progression (87/100)">8</div>
+        <div class="demo-step-crumb" data-step="9" title="9. Spill Simulation">9</div>
+        <div class="demo-step-crumb" data-step="10" title="10. Impact Analysis">10</div>
+        <div class="demo-step-crumb" data-step="11" title="11. Authority Alert">11</div>
+        <div class="demo-step-crumb" data-step="12" title="12. Final Assessment">12</div>
+      </div>
+    </section>
+
+    <!-- Main Workspace Body -->
+    <div class="workspace-body">
+
+      <!-- Left Sidebar Navigation -->
+      <aside class="sidebar">
+        <div>
+          <div class="nav-group-title">COMMAND NAVIGATION</div>
+          <ul class="nav-list">
+            <li>
+              <a href="#" class="nav-item active" data-tab="overview">
+                <span class="nav-item-icon">🌐</span> Command Map
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="vessels">
+                <span class="nav-item-icon">🚢</span> Vessel Monitoring
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="incidents">
+                <span class="nav-item-icon">⚠️</span> Incident Centre
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="vision">
+                <span class="nav-item-icon">👁️</span> Ocean Vision AI
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="satellite">
+                <span class="nav-item-icon">🛰️</span> Satellite Evidence
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="simulation">
+                <span class="nav-item-icon">🌊</span> Spill Simulation
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="impact">
+                <span class="nav-item-icon">🛡️</span> Impact Analysis
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="alerts">
+                <span class="nav-item-icon">🔔</span> Authority Alerts
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="history">
+                <span class="nav-item-icon">📋</span> Incident History
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-item" data-tab="faq">
+                <span class="nav-item-icon">⚖️</span> Judge Defense / FAQ
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="disclaimer-card">
+            <strong>PROTOTYPE DISCLAIMER:</strong> AIS feeds, telemetry and incident inputs are simulated.
+            Spill trajectory is a simplified prototype simulation, not an operational forecast.
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center Dynamic Viewport -->
+      <section class="center-viewport">
+
+        <!-- VIEW 1: OVERVIEW & INTERACTIVE MAP -->
+        <div id="view-overview" class="view-panel active">
+          <div id="map-canvas"></div>
+
+          <!-- Map Overlaid HUD Controls -->
+          <div class="map-hud-top">
+            <div class="hud-glass-card">
+              <span>SECTOR: <strong>KERALA COASTAL ANCHORAGE</strong></span>
+            </div>
+            <div class="hud-glass-card">
+              <span>LAT/LNG: <strong>09°39'N, 076°15'E</strong></span>
+            </div>
+            <div class="hud-glass-card">
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <input type="checkbox" id="toggle-layer-sar" checked /> Sentinel-1 SAR Layer
+              </label>
+            </div>
+            <div class="hud-glass-card">
+              <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <input type="checkbox" id="toggle-layer-impact" checked /> Impact Zones
+              </label>
+            </div>
+          </div>
+
+          <!-- Map Legend -->
+          <div class="map-hud-legend">
+            <div class="legend-title">MAP OVERLAYS</div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="border: 2px dashed #00e5ff; background: rgba(0,229,255,0.1);"></span>
+              <span>Kerala Coastal Monitoring Zone</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background: #001a33; border: 1px solid #00f0ff;"></span>
+              <span>Sentinel-1 SAR Radar Anomaly</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background: #ff3366;"></span>
+              <span>Spill Spread Trajectory (NOW → +6H)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background: #00e676;"></span>
+              <span>Fishing Grounds (Zone A & B)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background: #ffb703;"></span>
+              <span>Coastal Communities (Chellanam / Fort Kochi)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: VESSEL MONITORING -->
+        <div id="view-vessels" class="view-panel">
+          <div class="page-container">
+            <div class="page-header">
+              <h2>VESSEL MONITORING & TRAJECTORY TRACKING</h2>
+              <p>Monitored fleet within the Kerala coastal sector. Powered by simulated AIS / VTS feed.</p>
+            </div>
+
+            <div style="display: flex; gap: 14px; margin-bottom: 16px;">
+              <input type="text" id="vessel-search-input" placeholder="Search by vessel name, MMSI, or type..." class="btn btn-outline" style="flex: 1; text-align: left; padding: 10px 14px;" />
+              <button class="btn btn-secondary" onclick="window.app.renderInitialViews()">Refresh Fleet</button>
+            </div>
+
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>VESSEL NAME</th>
+                    <th>MMSI</th>
+                    <th>TYPE</th>
+                    <th>SPEED</th>
+                    <th>HEADING</th>
+                    <th>COORDINATES</th>
+                    <th>STATUS</th>
+                    <th>RISK LEVEL</th>
+                  </tr>
+                </thead>
+                <tbody id="vessel-table-body">
+                  <!-- Populated dynamically by app.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Telemetry Anomaly Panel -->
+            <div style="margin-top: 24px;">
+              <div class="intel-card">
+                <div class="intel-card-header">
+                  <span class="intel-card-title">AUTHORIZED VESSEL TELEMETRY (MV OCEAN STAR)</span>
+                  <span id="tel-anomaly-status" class="badge badge-ok">NORMAL OPERATIONAL BASELINE</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px;">
+                  <div class="hud-glass-card">
+                    <span class="top-stat-label">FUEL PRESSURE</span>
+                    <div id="tel-pressure-val" class="top-stat-val text-ok">72.0 PSI</div>
+                    <span style="font-size: 10px; color: var(--text-muted);">Baseline: 65–78 PSI</span>
+                  </div>
+                  <div class="hud-glass-card">
+                    <span class="top-stat-label">FUEL FLOW RATE</span>
+                    <div id="tel-flow-val" class="top-stat-val text-ok">11.8 t/h</div>
+                    <span style="font-size: 10px; color: var(--text-muted);">Baseline: 10–14 t/h</span>
+                  </div>
+                  <div class="hud-glass-card">
+                    <span class="top-stat-label">FUEL TANK LEVEL</span>
+                    <div id="tel-level-val" class="top-stat-val text-ok">84.5%</div>
+                    <span style="font-size: 10px; color: var(--text-muted);">Hourly drop: 0.04%/h</span>
+                  </div>
+                  <div class="hud-glass-card">
+                    <span class="top-stat-label">ENGINE TEMPERATURE</span>
+                    <div id="tel-temp-val" class="top-stat-val">41.2 °C</div>
+                    <span style="font-size: 10px; color: var(--text-muted);">Operational range: &lt;50°C</span>
+                  </div>
+                </div>
+                <p id="tel-anomaly-summary" style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                  Engine parameters operating within standard verified operational envelopes.
+                </p>
+                <div style="margin-top: 10px; font-size: 10px; color: var(--accent-warn);">
+                  * Note: Authorities do not access private engine computers of foreign vessels without authorization.
+                  Data stream represents an authorized telemetry feed or simulated onboard data-sharing agreement.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 3: INCIDENT CENTRE -->
+        <div id="view-incidents" class="view-panel">
+          <div class="page-container">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h2>INCIDENT COMMAND & VERIFICATION CENTRE</h2>
+                <p>Manage active marine pollution reports, multi-source alerts, and verification workflows.</p>
+              </div>
+              <button id="btn-report-incident" class="btn btn-danger">
+                <span>➕</span> REPORT INCIDENT
+              </button>
+            </div>
+
+            <div id="incident-centre-cards" style="display: flex; flex-direction: column; gap: 16px;">
+              <!-- Populated dynamically by app.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 4: OCEAN VISION AI -->
+        <div id="view-vision" class="view-panel">
+          <div class="page-container">
+            <div class="page-header">
+              <h2>OCEAN VISION AI — COMPUTER VISION SURFACE ANALYSIS</h2>
+              <p>Analyze aerial, drone, and shipboard surveillance imagery for oil-like surface patterns.</p>
+            </div>
+
+            <div class="vision-layout">
+              <div class="vision-card">
+                <h3 style="font-size: 14px; font-family: var(--font-mono); color: var(--accent-cyan); margin-bottom: 12px;">
+                  SURVEILLANCE IMAGERY FEED
+                </h3>
+                <div class="vision-preview-box">
+                  <img id="vision-preview-img" src="assets/images/ocean/slick.svg" alt="Ocean Surface Analysis" />
+                  <div id="vision-bounding-box" class="vision-bounding-box"></div>
+                  <div id="vision-scan-overlay" class="scan-laser-overlay"></div>
+                </div>
+
+                <div class="sample-selector-strip">
+                  <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); align-self: center;">TEST PRESETS:</span>
+                  <button class="vision-preset-btn active" data-preset="sample_slick">Heavy Slick (94%)</button>
+                  <button class="vision-preset-btn" data-preset="sample_sheen">Surface Sheen (86%)</button>
+                  <button class="vision-preset-btn" data-preset="sample_emulsion">Emulsion (91%)</button>
+                  <button class="vision-preset-btn" data-preset="sample_clean">Clean Water (96%)</button>
+                </div>
+
+                <div id="vision-drop-zone" class="upload-drop-zone">
+                  <div style="font-size: 24px; margin-bottom: 6px;">📷</div>
+                  <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">
+                    DRAG & DROP SURVEILLANCE IMAGE HERE
+                  </p>
+                  <span style="font-size: 11px; color: var(--text-muted);">or click to browse local drone/patrol image file</span>
+                  <input type="file" id="vision-file-input" accept="image/*" style="display: none;" />
+                </div>
+              </div>
+
+              <div class="vision-card">
+                <h3 style="font-size: 14px; font-family: var(--font-mono); color: var(--accent-cyan); margin-bottom: 12px;">
+                  AI DETECTION & SPECTRAL METRICS
+                </h3>
+
+                <div style="padding: 14px; background: rgba(0, 229, 255, 0.04); border: 1px solid var(--border-subtle); border-radius: 8px; margin-bottom: 16px;">
+                  <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 4px;">CLASSIFICATION:</div>
+                  <div id="vision-result-class" style="font-size: 20px; font-weight: 900; font-family: var(--font-mono);" class="text-danger">
+                    OIL-LIKE SURFACE PATTERN
+                  </div>
+                  <div style="display: flex; gap: 14px; margin-top: 8px;">
+                    <div><span style="font-size: 10px; color: var(--text-muted);">CONFIDENCE:</span> <strong id="vision-result-conf" class="text-danger" style="font-family: var(--font-mono);">94%</strong></div>
+                    <div><span style="font-size: 10px; color: var(--text-muted);">MODEL:</span> <strong style="font-family: var(--font-mono); color: var(--accent-cyan);">OilGuard Vision v2.4</strong></div>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                  <h4 style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 8px;">EXTRACTED SPECTRAL FEATURES</h4>
+                  <div id="vision-metrics-list" style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+
+                <div style="padding: 12px; background: rgba(255, 51, 102, 0.08); border: 1px solid rgba(255, 51, 102, 0.3); border-radius: 6px; margin-bottom: 16px;">
+                  <div style="font-size: 11px; font-weight: 700; color: var(--accent-danger); margin-bottom: 4px;">EXPLANATION:</div>
+                  <p id="vision-result-expl" style="font-size: 12px; line-height: 1.5; color: var(--text-primary);">
+                    Detected visual characteristics are consistent with an oil-like surface pattern. Capillary wave suppression and dark attenuation observed. Human verification is required.
+                  </p>
+                </div>
+
+                <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                  ⚠️ <strong>Advisory:</strong> The computer vision module does not claim to conclusively prove an oil spill.
+                  Outputs indicate a <em>possible oil-like pattern</em> and serve as decision-support evidence for human verification.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 5: SATELLITE EVIDENCE -->
+        <div id="view-satellite" class="view-panel">
+          <div class="page-container">
+            <div class="page-header">
+              <h2>SENTINEL-1 SAR SATELLITE SUPPORTING EVIDENCE</h2>
+              <p>Remote sensing radar observations from Copernicus Sentinel-1 Synthetic Aperture Radar (SAR).</p>
+            </div>
+
+            <div class="vision-layout">
+              <div class="vision-card">
+                <h3 style="font-size: 14px; font-family: var(--font-mono); color: var(--accent-cyan); margin-bottom: 12px;">
+                  LATEST AVAILABLE SENTINEL-1 SAR OBSERVATION
+                </h3>
+                <div class="vision-preview-box">
+                  <img src="assets/images/satellite/sentinel1_sar.svg" alt="Sentinel-1 SAR Radar Anomaly" />
+                </div>
+                <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 12px; color: var(--text-secondary);">Observation Status: <strong class="text-ok">Supporting Pass Available</strong></span>
+                  <button class="btn btn-sm btn-secondary" onclick="window.app.switchTab('overview')">View Map Footprint</button>
+                </div>
+              </div>
+
+              <div class="vision-card">
+                <h3 style="font-size: 14px; font-family: var(--font-mono); color: var(--accent-cyan); margin-bottom: 12px;">
+                  RADAR METRICS & OBSERVATION CONTEXT
+                </h3>
+
+                <div class="kv-grid" style="margin-bottom: 18px;">
+                  <span>SATELLITE:</span> <strong>Copernicus Sentinel-1B</strong>
+                  <span>SENSOR:</span> <strong>C-Band SAR (5.405 GHz)</strong>
+                  <span>POLARIZATION:</span> <strong>VV + VH Dual-Pol</strong>
+                  <span>MODE:</span> <strong>Interferometric Wide (IW)</strong>
+                  <span>RESOLUTION:</span> <strong>10m Ground Sample Distance</strong>
+                  <span>OBSERVATION:</span> <strong>2026-09-18 08:42:15 UTC (Latest pass)</strong>
+                  <span>EVIDENCE:</span> <strong class="text-warn">Supporting / Corroborating</strong>
+                  <span>ATTENUATION:</span> <strong class="text-danger">-5.8 dB Backscatter Damping</strong>
+                </div>
+
+                <div style="padding: 12px; background: rgba(0, 229, 255, 0.05); border: 1px solid var(--border-subtle); border-radius: 6px; margin-bottom: 16px;">
+                  <strong style="font-size: 12px; color: var(--accent-cyan); display: block; margin-bottom: 4px;">RADAR INTERPRETATION:</strong>
+                  <p style="font-size: 12px; line-height: 1.5; color: var(--text-secondary);">
+                    Hydrocarbons dampen short sea-surface capillary waves, resulting in reduced radar backscatter and characteristic dark-patch signatures.
+                    The detected damping aligns with the recorded position of MV Ocean Star.
+                  </p>
+                </div>
+
+                <div style="padding: 12px; background: rgba(255, 183, 3, 0.08); border: 1px solid rgba(255, 183, 3, 0.2); border-radius: 6px;">
+                  <strong style="color: #ffd166; font-size: 11px; display: block; margin-bottom: 4px;">IMPORTANT UI STATEMENT:</strong>
+                  <p style="font-size: 11px; line-height: 1.4; color: #ffe8a1;">
+                    "Satellite observation is not continuous live monitoring. It is used as a supporting verification source when an observation is available."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 6: SPILL SIMULATION -->
+        <div id="view-simulation" class="view-panel">
+          <div class="page-container">
+            <div class="page-header">
+              <h2>PROTOTYPE SPILL TRAJECTORY SIMULATION</h2>
+              <p>Simplified wind-current drift modeling (NOW → +1H → +3H → +6H). Clearly labeled prototype simulation.</p>
+            </div>
+
+            <div class="sim-layout">
+              <div class="sim-controls-panel">
+                <h3 style="font-size: 13px; font-family: var(--font-mono); color: var(--accent-cyan);">
+                  TIME HORIZON SELECTOR
+                </h3>
+                <div class="sim-time-selector">
+                  <div class="sim-time-btn active" data-step="NOW">NOW</div>
+                  <div class="sim-time-btn" data-step="+1H">+1H</div>
+                  <div class="sim-time-btn" data-step="+3H">+3H</div>
+                  <div class="sim-time-btn" data-step="+6H">+6H</div>
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-header">
+                    <span>WIND SPEED (3% DRIFT)</span>
+                    <strong id="sim-wind-speed-val">18 km/h</strong>
+                  </div>
+                  <input type="range" id="sim-wind-speed" min="5" max="50" value="18" />
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-header">
+                    <span>WIND DIRECTION (FROM)</span>
+                    <strong id="sim-wind-dir-val">225° (SW)</strong>
+                  </div>
+                  <input type="range" id="sim-wind-dir" min="0" max="360" value="225" />
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-header">
+                    <span>OCEAN CURRENT SPEED</span>
+                    <strong id="sim-current-speed-val">1.2 kn</strong>
+                  </div>
+                  <input type="range" id="sim-current-speed" min="0.2" max="3.5" step="0.1" value="1.2" />
+                </div>
+
+                <div style="padding: 10px; background: rgba(0, 229, 255, 0.05); border-radius: 6px; font-size: 11px;">
+                  <div style="color: var(--text-muted); margin-bottom: 2px;">NET DRIFT VELOCITY:</div>
+                  <strong id="sim-net-speed" style="font-family: var(--font-mono); color: var(--accent-cyan);">2.8 km/h (NE)</strong>
+                </div>
+
+                <div style="font-size: 10px; color: var(--accent-warn); line-height: 1.4;">
+                  ⚠️ <strong>Disclaimer:</strong> Prototype spill trajectory simulation — not an operational oceanographic forecast.
+                </div>
+              </div>
+
+              <div>
+                <div class="intel-card" style="margin-bottom: 16px;">
+                  <div class="intel-card-header">
+                    <span class="intel-card-title">PROJECTED SLICK METRICS</span>
+                    <button class="btn btn-sm btn-primary" onclick="window.app.switchTab('overview')">View on Map Canvas</button>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+                    <div class="hud-glass-card">
+                      <span class="top-stat-label">ESTIMATED AFFECTED AREA</span>
+                      <div id="sim-area-val" class="top-stat-val text-danger">0.65 km²</div>
+                      <span style="font-size: 10px; color: var(--text-muted);">Surface expansion</span>
+                    </div>
+                    <div class="hud-glass-card">
+                      <span class="top-stat-label">DISTANCE FROM ORIGIN</span>
+                      <div id="sim-dist-val" class="top-stat-val">0.0 km from origin</div>
+                      <span style="font-size: 10px; color: var(--text-muted);">Cumulative advection</span>
+                    </div>
+                    <div class="hud-glass-card">
+                      <span class="top-stat-label">TRAJECTORY HEADING</span>
+                      <div class="top-stat-val text-cyan">048° (North-East)</div>
+                      <span style="font-size: 10px; color: var(--text-muted);">Wind + Current resultant</span>
+                    </div>
+                  </div>
+                  <div style="margin-top: 14px; font-size: 12px;">
+                    <span style="color: var(--text-muted);">POTENTIAL ZONES REACHED:</span>
+                    <strong id="sim-zones-val" style="color: var(--accent-warn); margin-left: 8px;">Immediate Release Point (Outer Fairway)</strong>
+                  </div>
+                </div>
+
+                <div class="data-table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>TIME STEP</th>
+                        <th>HOURS</th>
+                        <th>AREA (KM²)</th>
+                        <th>SLICK LENGTH</th>
+                        <th>PROJECTED LOCATION</th>
+                        <th>POTENTIAL EXPOSURE</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="badge badge-critical">NOW</span></td>
+                        <td>0H</td>
+                        <td>0.65 km²</td>
+                        <td>1.2 km</td>
+                        <td>09°39'N, 076°15'E</td>
+                        <td>Outer Fairway Channel</td>
+                      </tr>
+                      <tr>
+                        <td><span class="badge badge-danger">+1H</span></td>
+                        <td>1H</td>
+                        <td>4.80 km²</td>
+                        <td>3.2 km</td>
+                        <td>09°40'N, 076°17'E</td>
+                        <td>Inshore Fishing Grounds Margin</td>
+                      </tr>
+                      <tr>
+                        <td><span class="badge badge-medium">+3H</span></td>
+                        <td>3H</td>
+                        <td>18.20 km²</td>
+                        <td>6.4 km</td>
+                        <td>09°43'N, 076°19'E</td>
+                        <td>Fishing Zone A & Port Channel</td>
+                      </tr>
+                      <tr>
+                        <td><span class="badge badge-low">+6H</span></td>
+                        <td>6H</td>
+                        <td>52.60 km²</td>
+                        <td>10.8 km</td>
+                        <td>09°47'N, 076°24'E</td>
+                        <td>Chellanam Coastal Shoreline</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 7: IMPACT ANALYSIS -->
+        <div id="view-impact" class="view-panel">
+          <div class="page-container">
+            <div class="page-header">
+              <h2>COASTAL & SENSITIVE ZONE IMPACT ANALYSIS</h2>
+              <p>Evaluation of potential exposure across fishing zones, commercial ports, communities and marine reserves.</p>
+            </div>
+
+            <div class="impact-grid">
+              <div class="impact-zone-card high">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span class="badge badge-critical">FISHING GROUND</span>
+                  <span class="badge badge-danger">HIGH POTENTIAL IMPACT</span>
+                </div>
+                <h3 style="font-size: 15px; margin-bottom: 6px;">Fishing Zone A (Inshore Artisanal Waters)</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px;">
+                  Primary coastal fishing grounds sustaining over 12,000 traditional fishermen across Chellanam and Kochi.
+                </p>
+                <div class="kv-grid" style="font-size: 11px;">
+                  <span>DISTANCE:</span> <strong>3.8 km NE</strong>
+                  <span>EST. CONTACT:</span> <strong class="text-danger">T+2.2 Hours</strong>
+                  <span>LIVELIHOOD:</span> <strong>High Artisanal Exposure</strong>
+                </div>
+              </div>
+
+              <div class="impact-zone-card high">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span class="badge badge-medium">COASTAL SETTLEMENT</span>
+                  <span class="badge badge-danger">HIGH POTENTIAL IMPACT</span>
+                </div>
+                <h3 style="font-size: 15px; margin-bottom: 6px;">Coastal Communities (Chellanam & Fort Kochi)</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px;">
+                  Densely populated coastal villages, seawalls prone to surge wash, and heritage tourist beaches.
+                </p>
+                <div class="kv-grid" style="font-size: 11px;">
+                  <span>DISTANCE:</span> <strong>7.2 km ENE</strong>
+                  <span>EST. CONTACT:</span> <strong class="text-danger">T+4.8 Hours</strong>
+                  <span>PRIORITY:</span> <strong>Containment Boom Deployment</strong>
+                </div>
+              </div>
+
+              <div class="impact-zone-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span class="badge badge-low">COMMERCIAL PORT</span>
+                  <span class="badge badge-medium">MEDIUM POTENTIAL IMPACT</span>
+                </div>
+                <h3 style="font-size: 15px; margin-bottom: 6px;">Cochin Port Approaches & Fairway</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px;">
+                  Major international commercial navigation approaches, pilotage fairway, and oil terminal outer anchorage.
+                </p>
+                <div class="kv-grid" style="font-size: 11px;">
+                  <span>DISTANCE:</span> <strong>9.5 km NNE</strong>
+                  <span>EST. CONTACT:</span> <strong>T+5.5 Hours (Fringe)</strong>
+                  <span>TRAFFIC:</span> <strong>VTS Fairway Advisory Notice</strong>
+                </div>
+              </div>
+
+              <div class="impact-zone-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span class="badge badge-low">ECOLOGICAL RESERVE</span>
+                  <span class="badge badge-medium">MEDIUM POTENTIAL IMPACT</span>
+                </div>
+                <h3 style="font-size: 15px; margin-bottom: 6px;">Sensitive Marine Zone (Vembanad Mangrove Buffer)</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px;">
+                  Ramsar wetland site #1212, mangrove fish nursery, and estuarine inlet vulnerable to tidal influx.
+                </p>
+                <div class="kv-grid" style="font-size: 11px;">
+                  <span>DISTANCE:</span> <strong>12.0 km SE</strong>
+                  <span>EST. CONTACT:</span> <strong>Secondary Tidal Ingress Risk</strong>
+                  <span>ECOLOGY:</span> <strong>Pristine Wetland Nursery</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 8: AUTHORITY ALERT VIEW -->
+        <div id="view-alerts" class="view-panel">
+          <div class="page-container">
+            <div class="page-header">
+              <h2>SIMULATED AUTHORITY ALERT SYSTEM</h2>
+              <p>Simulated broadcast alert dispatched to maritime response coordinators and port authorities.</p>
+            </div>
+
+            <div style="background: rgba(255, 51, 102, 0.1); border: 2px solid var(--accent-danger); border-radius: 12px; padding: 24px; box-shadow: 0 0 30px rgba(255, 51, 102, 0.2);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <span class="badge badge-critical" style="font-size: 12px; padding: 6px 14px;">⚠️ PRIORITY MARITIME ALERT</span>
+                <span class="badge badge-medium">DEMO NOTIFICATION (SIMULATED)</span>
+              </div>
+              <h3 style="font-size: 26px; font-weight: 900; margin-bottom: 8px; color: #ffffff;">
+                POSSIBLE OIL SPILL DETECTED
+              </h3>
+              <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">
+                Multi-source correlation flagged a high-confidence anomaly off the Kochi coastal anchorage.
+              </p>
+
+              <div class="kv-grid" style="grid-template-columns: 140px 1fr; font-size: 13px; margin-bottom: 24px;">
+                <span>TARGET VESSEL:</span> <strong>MV Ocean Star (IMO: 9418826, MMSI: 419001234)</strong>
+                <span>LOCATION:</span> <strong>09°39'N, 076°15'E (Kerala Coastal Monitoring Zone)</strong>
+                <span>DECISION RISK:</span> <strong class="text-danger">Prototype Risk Score: 87/100 (HIGH RISK)</strong>
+                <span>SUPPORTING EVIDENCE:</span> <strong>4 Multi-Source Channels (AIS, Telemetry, Vision, Satellite)</strong>
+                <span>POTENTIAL IMPACT:</span> <strong class="text-danger">HIGH (Fishing Grounds & Chellanam Shoreline)</strong>
+              </div>
+
+              <div style="padding: 16px; background: rgba(0, 229, 255, 0.08); border: 1px solid var(--border-glow); border-radius: 8px; margin-bottom: 24px;">
+                <strong style="color: var(--accent-cyan); font-size: 12px; display: block; margin-bottom: 6px;">
+                  RECOMMENDED RESPONSE WORKFLOW:
+                </strong>
+                <div style="display: flex; gap: 14px; font-family: var(--font-mono); font-weight: 700; font-size: 13px;">
+                  <span>1. VERIFY (Coast Guard / On-Scene Drone Recon)</span>
+                  <span>→</span>
+                  <span>2. ASSESS (Trajectory & Booming Points)</span>
+                  <span>→</span>
+                  <span>3. RESPOND (Containment & Recovery)</span>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px;">
+                <button class="btn btn-primary" onclick="window.app.switchTab('simulation')">Simulate Spread Trajectory</button>
+                <button class="btn btn-outline" onclick="window.app.switchTab('overview')">Return to Command Map</button>
+                <button class="btn btn-outline" onclick="window.app.acknowledgeIncident('OG-2026-001')">Acknowledge Alert</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 9: INCIDENT HISTORY -->
+        <div id="view-history" class="view-panel">
+          <div class="page-container">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h2>INCIDENT HISTORY & VERIFICATION LOG</h2>
+                <p>Auditable log of previous marine incident assessments, false alarm resolutions, and investigations.</p>
+              </div>
+              <div>
+                <select id="history-status-filter" class="btn btn-outline">
+                  <option value="ALL">All Records</option>
+                  <option value="ACTIVE">Active / Verification Required</option>
+                  <option value="CLOSED">Closed / Resolved</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>INCIDENT ID</th>
+                    <th>VESSEL</th>
+                    <th>TITLE / CONDITION</th>
+                    <th>RISK</th>
+                    <th>STATUS</th>
+                    <th>DATE (UTC)</th>
+                    <th>ACTION</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table-body">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 10: JUDGE DEFENSE & FAQ -->
+        <div id="view-faq" class="view-panel">
+          <div class="page-container">
+            <div class="page-header">
+              <h2>JUDGE DEFENSE PANEL & REGULATORY CONTEXT</h2>
+              <p>Direct technical answers to key hackathon questions and MARPOL Annex I compliance alignment.</p>
+            </div>
+
+            <!-- MARPOL Card -->
+            <div class="intel-card" style="margin-bottom: 20px; border-color: var(--accent-cyan);">
+              <h3 style="font-size: 15px; color: var(--accent-cyan); margin-bottom: 8px;">
+                INTERNATIONAL MARITIME ORGANIZATION (IMO) — MARPOL ANNEX I ALIGNMENT
+              </h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                "Ships have strict reporting and pollution-prevention obligations under MARPOL Annex I.
+                OilGuard AI does not replace that process. Our system focuses on the <strong>authority-side intelligence gap</strong>
+                by combining available vessel, imagery, satellite and environmental evidence to help verify possible incidents,
+                assess potential spread, and identify potentially affected coastal areas faster."
+              </p>
+            </div>
+
+            <!-- 7 Judge Questions -->
+            <div class="faq-grid">
+              <div class="faq-card">
+                <div class="faq-q">Q1: How do you get data from a foreign ship?</div>
+                <div class="faq-a">
+                  "We do not access a foreign vessel's private systems. The prototype uses simulated AIS/VTS data.
+                  In real deployment, authorities would use authorized maritime surveillance feeds. Private engine telemetry
+                  would only be available through an authorized data-sharing agreement or port state control protocol."
+                </div>
+              </div>
+
+              <div class="faq-card">
+                <div class="faq-q">Q2: Can AIS alone detect an oil spill?</div>
+                <div class="faq-a">
+                  "No. AIS provides vessel identity, speed, course, and movement information. OilGuard uses vessel behavior
+                  (such as unexpected deceleration or abnormal maneuvering) purely as an <em>investigation trigger</em>,
+                  which it then correlates with other independent evidence such as optical imagery, satellite SAR observations,
+                  and incident reports."
+                </div>
+              </div>
+
+              <div class="faq-card">
+                <div class="faq-q">Q3: What if the ship doesn't report the spill?</div>
+                <div class="faq-a">
+                  "OilGuard can still support investigations using independently available maritime surveillance, drone/patrol imagery,
+                  and satellite observations. The platform supports both report-first and independent-observation workflows,
+                  without claiming to detect every spill automatically."
+                </div>
+              </div>
+
+              <div class="faq-card">
+                <div class="faq-q">Q4: Is the satellite feed continuous live video?</div>
+                <div class="faq-a">
+                  "No. Sentinel-1 SAR is a Synthetic Aperture Radar sensor, not live continuous video.
+                  OilGuard uses the latest available observation pass as corroborating evidence when an observation is available."
+                </div>
+              </div>
+
+              <div class="faq-card">
+                <div class="faq-q">Q5: Why use an AI Fusion Engine?</div>
+                <div class="faq-a">
+                  "Marine authorities are overwhelmed by fragmented, multi-modal data streams.
+                  The AI Fusion Engine correlates heterogeneous evidence (AIS vectors, telemetry anomalies, optical textures,
+                  SAR radar backscatter, and environmental sensitivity) to calculate an explainable priority score for human inspectors."
+                </div>
+              </div>
+
+              <div class="faq-card">
+                <div class="faq-q">Q6: Can this platform replace human maritime authorities?</div>
+                <div class="faq-a">
+                  "No. OilGuard is purely a decision-support platform. Human and authority verification is a mandatory,
+                  uncompromising step in the workflow before any on-scene containment or legal enforcement action is initiated."
+                </div>
+              </div>
+
+              <div class="faq-card">
+                <div class="faq-q">Q7: Can the spill prediction model be trusted operationally?</div>
+                <div class="faq-a">
+                  "The hackathon model is a simplified prototype trajectory simulation based on empirical windage and surface current vectors.
+                  Production deployment would require coupling with validated operational oceanographic hydrodynamic models
+                  (e.g., GNOME, OpenDrift) and authoritative metocean forecasts."
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Intelligence Sidebar -->
+      <aside class="intelligence-bar">
+
+        <!-- Priority Incident Card -->
+        <div class="intel-card critical">
+          <div class="intel-card-header">
+            <span class="intel-card-title">PRIORITY INCIDENT</span>
+            <span class="badge badge-critical">HIGH RISK</span>
+          </div>
+          <div style="font-size: 14px; font-weight: 800; margin-bottom: 4px;">MV Ocean Star</div>
+          <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">
+            Product Tanker · Kochi Coastal Sector
+          </div>
+          <div class="kv-grid">
+            <span>ASSESSMENT:</span> <strong class="text-danger">POSSIBLE OIL SPILL</strong>
+            <span>INCIDENT ID:</span> <strong>OG-2026-001</strong>
+            <span>EVIDENCE:</span> <strong>5 Sources Correlated</strong>
+            <span>VERIFICATION:</span> <strong class="text-warn">REQUIRED</strong>
+          </div>
+          <div style="margin-top: 14px; display: flex; gap: 8px;">
+            <button id="btn-why-alert" class="btn btn-sm btn-secondary" style="flex: 1;">
+              <span>❓</span> WHY THIS ALERT?
+            </button>
+          </div>
+        </div>
+
+        <!-- Risk Score Gauge -->
+        <div class="intel-card">
+          <div class="intel-card-header">
+            <span class="intel-card-title">PROTOTYPE RISK SCORE</span>
+            <span id="hud-risk-level-label" class="badge badge-critical">HIGH</span>
+          </div>
+          <div class="risk-gauge-wrap">
+            <div id="hud-risk-score-val" class="risk-num-display">87/100</div>
+            <div class="risk-level-tag text-danger">HIGH RISK / VERIFICATION REQUIRED</div>
+            <div class="risk-progress-bar">
+              <div id="hud-risk-bar-fill" class="risk-bar-fill" style="width: 87%;"></div>
+            </div>
+          </div>
+          <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
+            Decision-support score · Max: 100 points
+          </div>
+        </div>
+
+        <!-- AI Multi-Source Fusion Breakdown -->
+        <div class="intel-card">
+          <div class="intel-card-header">
+            <span class="intel-card-title">AI EVIDENCE FUSION LAYER</span>
+            <span class="badge badge-ok">FUSED</span>
+          </div>
+          <div id="fusion-sources-badges" class="sources-grid">
+            <div class="source-tag lit"><span>AIS Anomaly</span> <strong>+15 pts</strong></div>
+            <div class="source-tag lit"><span>Telemetry Anomaly</span> <strong>+20 pts</strong></div>
+            <div class="source-tag lit"><span>Ocean Vision AI</span> <strong>+30 pts</strong></div>
+            <div class="source-tag lit"><span>Sentinel-1 SAR</span> <strong>+18 pts</strong></div>
+            <div class="source-tag lit"><span>Environmental Sensitivity</span> <strong>+14 pts</strong></div>
+          </div>
+        </div>
+
+        <!-- Environmental Forcing Status -->
+        <div class="intel-card">
+          <div class="intel-card-header">
+            <span class="intel-card-title">ENVIRONMENTAL FORCING</span>
+            <span class="badge badge-ok">LIVE</span>
+          </div>
+          <div class="kv-grid">
+            <span>WIND:</span> <strong>SW → NE (18 km/h)</strong>
+            <span>CURRENT:</span> <strong>North-East (1.2 kn)</strong>
+            <span>SEA STATE:</span> <strong>Slight to Moderate</strong>
+            <span>SURFACE TEMP:</span> <strong>28.4 °C</strong>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       3. MODALS & POPUPS
+       ========================================================================= -->
+
+  <!-- Modal 1: "WHY THIS ALERT?" Explainability Modal -->
+  <div id="why-explain-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>WHY DID OILGUARD AI RAISE THIS ALERT?</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div id="why-modal-content" class="modal-body">
+        <!-- Injected dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Simulated Authority Emergency Alert Modal -->
+  <div id="authority-alert-modal" class="modal-overlay">
+    <div class="modal-dialog" style="border-color: var(--accent-danger);">
+      <div class="modal-header" style="background: rgba(255, 51, 102, 0.15);">
+        <h3 style="color: var(--accent-danger);">⚠ POSSIBLE OIL SPILL DETECTED</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
+          <p><strong>Vessel:</strong> MV Ocean Star (Product Tanker)</p>
+          <p><strong>Location:</strong> Kerala Coastal Monitoring Zone (Kochi Approaches)</p>
+          <p><strong>Prototype Risk Score:</strong> <span class="text-danger font-bold">87/100 (HIGH RISK)</span></p>
+          <p><strong>Correlated Evidence:</strong> 4 independent sources (AIS, Telemetry, Drone Image, SAR Satellite)</p>
+          <p><strong>Potential Impact:</strong> Inshore Fishing Grounds (HIGH) & Chellanam Settlement (HIGH)</p>
+        </div>
+
+        <div style="padding: 12px; background: rgba(0, 229, 255, 0.08); border-radius: 6px; margin-bottom: 20px;">
+          <strong style="color: var(--accent-cyan); font-size: 12px;">RECOMMENDED AUTHORITY WORKFLOW:</strong>
+          <div style="font-size: 14px; font-weight: 800; margin-top: 4px;">
+            VERIFY → ASSESS → RESPOND
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button class="btn btn-outline modal-close-btn">Close</button>
+          <button class="btn btn-danger" onclick="window.app.acknowledgeIncident('OG-2026-001'); window.app.closeAllModals();">
+            Acknowledge Alert
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Manual Incident Reporting Modal -->
+  <div id="incident-report-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>REPORT MARINE POLLUTION INCIDENT</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="incident-report-form">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+              <label style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); display: block; margin-bottom: 4px;">REPORTING SOURCE</label>
+              <select class="btn btn-outline" style="width: 100%; text-align: left;">
+                <option>Observer / Onboard Ship Master</option>
+                <option>Coastal Patrol / Marine Police</option>
+                <option>Fishermen Cooperative Observer</option>
+                <option>Port State Control Inspector</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); display: block; margin-bottom: 4px;">SELECT VESSEL</label>
+              <select id="report-vessel-select" class="btn btn-outline" style="width: 100%; text-align: left;">
+                <option value="MV Ocean Star">MV Ocean Star (Product Tanker)</option>
+                <option value="MV Coral">MV Coral (General Cargo)</option>
+                <option value="MT Blue Horizon">MT Blue Horizon (Crude Tanker)</option>
+                <option value="MV Arabian Pearl">MV Arabian Pearl (Container)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); display: block; margin-bottom: 4px;">OBSERVED CONDITION</label>
+              <input type="text" id="report-condition-input" value="Suspected surface hydrocarbon sheen" class="btn btn-outline" style="width: 100%; text-align: left;" />
+            </div>
+            <div>
+              <label style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); display: block; margin-bottom: 4px;">LOCATION / ANCHORAGE SECTOR</label>
+              <input type="text" value="Kerala Coastal Monitoring Zone (09°39'N, 076°15'E)" class="btn btn-outline" style="width: 100%; text-align: left;" readonly />
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+              <button type="button" class="btn btn-outline modal-close-btn">Cancel</button>
+              <button type="submit" class="btn btn-primary">Submit Report to OilGuard</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Final 12-Step Assessment Complete Modal -->
+  <div id="final-summary-modal" class="modal-overlay">
+    <div class="modal-dialog" style="border-color: var(--accent-cyan); text-align: center;">
+      <div class="modal-header" style="justify-content: center; background: rgba(0, 229, 255, 0.1);">
+        <h3 style="color: var(--accent-cyan);">OILGUARD AI INCIDENT ASSESSMENT COMPLETE</h3>
+      </div>
+      <div class="modal-body" style="padding: 30px;">
+        <div style="font-size: 48px; margin-bottom: 12px;">🛡️</div>
+        <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 8px;">DETECT → VERIFY → ASSESS → PROTECT</h2>
+        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+          "Multi-source intelligence for faster marine oil-spill verification, risk assessment and coastal response."
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; font-size: 11px; font-family: var(--font-mono);">
+          <div class="hud-glass-card">
+            <div class="text-ok">✓ DETECT</div>
+            <span>AIS & Telemetry Trigger</span>
+          </div>
+          <div class="hud-glass-card">
+            <div class="text-ok">✓ VERIFY</div>
+            <span>Drone AI & Sentinel-1</span>
+          </div>
+          <div class="hud-glass-card">
+            <div class="text-ok">✓ ASSESS</div>
+            <span>Fusion Score 87/100</span>
+          </div>
+          <div class="hud-glass-card">
+            <div class="text-ok">✓ PROTECT</div>
+            <span>Spread & Shoreline Impact</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="window.app.closeAllModals();">
+          Continue Exploring Platform
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Stack Container -->
+  <div id="toast-container"></div>
+
+  <!-- Application Scripts -->
+  <script src="js/data-store.js"></script>
+  <script src="js/three-hero.js"></script>
+  <script src="js/map-manager.js"></script>
+  <script src="js/fusion-engine.js"></script>
+  <script src="js/ocean-vision.js"></script>
+  <script src="js/spill-simulation.js"></script>
+  <script src="js/demo-runner.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

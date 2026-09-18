@@ -1,0 +1,161 @@
+{
+  "type": "FeatureCollection",
+  "name": "Kerala_Coastal_Sensitivity_Zones",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ZONE-FISH-A",
+        "name": "Fishing Zone A (Inshore Artisanal Waters)",
+        "category": "fishing",
+        "typeLabel": "Fishing Ground",
+        "sensitivity": "HIGH",
+        "color": "#00e676",
+        "economicValue": "High (Local Fishery Livelihood)",
+        "vesselTraffic": "High artisanal canoes & small trawlers",
+        "description": "Primary coastal fishing ground sustaining over 12,000 traditional fishermen across Chellanam and Kochi coastlines."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [75.95, 9.60],
+            [76.22, 9.60],
+            [76.26, 9.80],
+            [76.02, 9.80],
+            [75.95, 9.60]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ZONE-FISH-B",
+        "name": "Fishing Zone B (Deep Mechanized Grounds)",
+        "category": "fishing",
+        "typeLabel": "Fishing Ground",
+        "sensitivity": "MEDIUM",
+        "color": "#00e676",
+        "economicValue": "High (Export Marine Catch)",
+        "vesselTraffic": "Medium-High mechanized gillnetters",
+        "description": "Mid-shelf commercial trawling waters producing shrimp, squid, and pelagic mackerel."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [75.70, 9.50],
+            [75.94, 9.50],
+            [76.00, 9.75],
+            [75.76, 9.75],
+            [75.70, 9.50]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ZONE-PORT-01",
+        "name": "Cochin Port Approaches & Fairway Buoy",
+        "category": "port",
+        "typeLabel": "Commercial Port Area",
+        "sensitivity": "MEDIUM",
+        "color": "#00b4d8",
+        "economicValue": "Critical (International Shipping Hub)",
+        "vesselTraffic": "Very High (Tankers, Containerships, LNG)",
+        "description": "Navigational approach fairway, pilotage boarding grounds, and Cochin Oil Terminal outer anchorage."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [76.15, 9.90],
+            [76.32, 9.90],
+            [76.32, 10.05],
+            [76.15, 10.05],
+            [76.15, 9.90]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ZONE-COMM-01",
+        "name": "Coastal Communities (Chellanam & Fort Kochi)",
+        "category": "coastal",
+        "typeLabel": "Coastal Community & Beach",
+        "sensitivity": "HIGH",
+        "color": "#ffb703",
+        "economicValue": "High (Residential & Heritage Tourism)",
+        "vesselTraffic": "Shoreline / Surf Zone",
+        "description": "Dense coastal human settlements, sea-wall villages prone to wave surges, and heritage tourist beaches."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [76.24, 9.68],
+            [76.33, 9.68],
+            [76.33, 9.96],
+            [76.24, 9.96],
+            [76.24, 9.68]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ZONE-ECOL-01",
+        "name": "Sensitive Marine Zone (Vembanad-Kol & Mangrove Buffer)",
+        "category": "ecology",
+        "typeLabel": "Ecological Reserve",
+        "sensitivity": "HIGH",
+        "color": "#b5179e",
+        "economicValue": "Irreplaceable (Ramsar Wetland Site #1212)",
+        "vesselTraffic": "Restricted / Estuarine Entry",
+        "description": "Biodiversity-rich estuarine breeding nursery, mangrove habitats, and Ramsar wetland complex."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [76.22, 9.58],
+            [76.35, 9.58],
+            [76.36, 9.76],
+            [76.25, 9.76],
+            [76.22, 9.58]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ZONE-MONITORING-KERALA",
+        "name": "Kerala Coastal Monitoring Zone",
+        "category": "monitoring",
+        "typeLabel": "Authority Surveillance Zone",
+        "sensitivity": "SURVEILLANCE",
+        "color": "#00f0ff",
+        "description": "Predefined maritime security and pollution response boundary off Central Kerala."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [75.50, 9.35],
+            [76.45, 9.35],
+            [76.45, 10.35],
+            [75.50, 10.35],
+            [75.50, 9.35]
+          ]
+        ]
+      }
+    }
+  ]
+}

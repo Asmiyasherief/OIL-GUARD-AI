@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-09-18T09:00:00Z",
+  "location": "Kerala Coastal Sector (9.65°N, 76.25°E)",
+  "speedKnots": 1.2,
+  "speedKmh": 2.22,
+  "directionTowardDeg": 55,
+  "cardinal": "North-East",
+  "seaState": "Slight to Moderate (Douglas Scale 3)",
+  "surfaceTempC": 28.4,
+  "source": "Simulated Ocean Surface Circulation Feed (Prototype)"
+}

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
+  <defs>
+    <!-- Ocean Base Gradient -->
+    <linearGradient id="oceanBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a2540" />
+      <stop offset="50%" stop-color="#0e3a5d" />
+      <stop offset="100%" stop-color="#081e33" />
+    </linearGradient>
+
+    <!-- Heavy Oil Core Gradient -->
+    <radialGradient id="slickCore" cx="45%" cy="50%" r="48%">
+      <stop offset="0%" stop-color="#06080b" stop-opacity="0.96" />
+      <stop offset="45%" stop-color="#121820" stop-opacity="0.90" />
+      <stop offset="75%" stop-color="#1e2c38" stop-opacity="0.75" />
+      <stop offset="92%" stop-color="#3d5a73" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#55a3b8" stop-opacity="0.0" />
+    </radialGradient>
+
+    <!-- Iridescent Sheen Fringe -->
+    <linearGradient id="sheenFringe" x1="0%" y1="0%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#e056fd" stop-opacity="0.6" />
+      <stop offset="25%" stop-color="#686de0" stop-opacity="0.5" />
+      <stop offset="50%" stop-color="#30336b" stop-opacity="0.3" />
+      <stop offset="75%" stop-color="#22a6b3" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#f0932b" stop-opacity="0.5" />
+    </linearGradient>
+
+    <filter id="waveNoise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.025 0.08" numOctaves="3" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </defs>
+
+  <!-- Base Sea Surface -->
+  <rect width="600" height="400" fill="url(#oceanBg)" />
+
+  <!-- Ambient Wave Swells -->
+  <g opacity="0.18" stroke="#ffffff" stroke-width="1.2" fill="none">
+    <path d="M-50,60 Q120,45 280,65 T650,55" />
+    <path d="M-50,110 Q140,95 320,115 T650,105" />
+    <path d="M-50,170 Q160,150 360,175 T650,165" />
+    <path d="M-50,230 Q110,210 290,235 T650,225" />
+    <path d="M-50,300 Q150,280 340,305 T650,295" />
+    <path d="M-50,360 Q130,340 310,365 T650,355" />
+  </g>
+
+  <!-- Iridescent Sheen Halo (Capillary Wave Suppression Boundary) -->
+  <path d="M 120,140 C 160,80 320,70 420,110 C 510,145 540,240 490,300 C 440,360 280,380 180,340 C 90,300 80,190 120,140 Z"
+        fill="url(#sheenFringe)" opacity="0.65" filter="url(#waveNoise)" />
+
+  <!-- Heavy Oil Slick Main Body -->
+  <path d="M 140,160 C 180,100 300,95 390,125 C 470,150 500,225 460,280 C 410,335 260,350 190,315 C 110,280 105,200 140,160 Z"
+        fill="url(#slickCore)" />
+
+  <!-- Dense Viscous Slick Streamers -->
+  <path d="M 210,180 C 260,140 340,140 380,180 C 420,220 370,270 310,260 C 250,250 180,210 210,180 Z"
+        fill="#040608" opacity="0.9" />
+
+  <!-- Drone HUD / Telemetry Overlay -->
+  <rect x="20" y="20" width="560" height="360" fill="none" stroke="#00e5ff" stroke-width="0.8" stroke-dasharray="10 25" opacity="0.4" />
+  
+  <!-- Optical Target Box -->
+  <rect x="110" y="95" width="400" height="235" fill="none" stroke="#ff3366" stroke-width="1.8" stroke-dasharray="8 6" />
+  <rect x="110" y="75" width="220" height="20" fill="#ff3366" opacity="0.9" />
+  <text x="118" y="89" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">TARGET: OIL-LIKE SURFACE PATTERN (94%)</text>
+  
+  <!-- HUD Details -->
+  <text x="35" y="45" fill="#00e5ff" font-family="'JetBrains Mono', monospace" font-size="10">UAV PATROL: RECON-04 [ALT: 320M | SENSOR: FLIR-HD]</text>
+  <text x="35" y="60" fill="#a0c0d8" font-family="'JetBrains Mono', monospace" font-size="9">LOC: 09°39'00"N 076°15'00"E | KERALA INSHORE SECTOR</text>
+  <text x="440" y="45" fill="#00e5ff" font-family="'JetBrains Mono', monospace" font-size="10">SPECTRUM: OPTICAL-VIS</text>
+</svg>
